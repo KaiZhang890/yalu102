@@ -31,6 +31,8 @@
 
 #define vm_address_t mach_vm_address_t
 
+extern char **environ;
+
 mach_port_t tfp0=0;
 uint64_t slide=0;
 io_connect_t funcconn=0;
@@ -879,19 +881,63 @@ remappage[remapcnt++] = (x & (~PMK));\
                 open("/.installed_yaluX", O_RDWR|O_CREAT);
                 open("/.cydia_no_stash",O_RDWR|O_CREAT);
                 
+                pid_t pid;
+                char *argv[] = {
+                    "echo",
+                    "127.0.0.1 iphonesubmissions.apple.com",
+                    ">> /etc/hosts",
+                    NULL
+                };
+                posix_spawn(&pid, argv[0], NULL, NULL, argv, environ);
+                waitpid(pid, NULL, 0);
                 
-                system("echo '127.0.0.1 iphonesubmissions.apple.com' >> /etc/hosts");
-                system("echo '127.0.0.1 radarsubmissions.apple.com' >> /etc/hosts");
+                char *argv1[] = {
+                    "echo",
+                    "127.0.0.1 radarsubmissions.apple.com",
+                    ">> /etc/hosts",
+                    NULL
+                };
+                posix_spawn(&pid, argv1[0], NULL, NULL, argv1, environ);
+                waitpid(pid, NULL, 0);
                 
-                system("/usr/bin/uicache");
+                char *argv2[] = {
+                    "/usr/bin/uicache",
+                    NULL
+                };
+                posix_spawn(&pid, argv2[0], NULL, NULL, argv2, environ);
+                waitpid(pid, NULL, 0);
                 
-                system("killall -SIGSTOP cfprefsd");
+                char *argv3[] = {
+                    "killall",
+                    "-SIGSTOP",
+                    "cfprefsd",
+                    NULL
+                };
+                posix_spawn(&pid, argv3[0], NULL, NULL, argv3, environ);
+                waitpid(pid, NULL, 0);
+                
+                
+//                system("echo '127.0.0.1 iphonesubmissions.apple.com' >> /etc/hosts");
+//                system("echo '127.0.0.1 radarsubmissions.apple.com' >> /etc/hosts");
+//
+//                system("/usr/bin/uicache");
+//
+//                system("killall -SIGSTOP cfprefsd");
                 NSMutableDictionary* md = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist"];
                 
                 [md setObject:[NSNumber numberWithBool:YES] forKey:@"SBShowNonDefaultSystemApps"];
                 
                 [md writeToFile:@"/var/mobile/Library/Preferences/com.apple.springboard.plist" atomically:YES];
-                system("killall -9 cfprefsd");
+                
+                char *argv4[] = {
+                    "killall",
+                    "-9",
+                    "cfprefsd",
+                    NULL
+                };
+                posix_spawn(&pid, argv4[0], NULL, NULL, argv4, environ);
+                waitpid(pid, NULL, 0);
+//                system("killall -9 cfprefsd");
                 
             }
             {
@@ -928,8 +974,36 @@ remappage[remapcnt++] = (x & (~PMK));\
     chmod("/private/var/mobile", 0777);
     chmod("/private/var/mobile/Library", 0777);
     chmod("/private/var/mobile/Library/Preferences", 0777);
-    system("rm -rf /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; touch /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chmod 000 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chown 0:0 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate");
-    system("(echo 'really jailbroken'; /bin/launchctl load /Library/LaunchDaemons/0.reload.plist)&");
+    
+    pid_t pid;
+    char *argv1[] = {
+        "rm",
+        "-rf",
+        "/var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; touch /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chmod 000 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chown 0:0 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate",
+        NULL
+    };
+    posix_spawn(&pid, argv1[0], NULL, NULL, argv1, environ);
+    waitpid(pid, NULL, 0);
+    
+    char *argv2[] = {
+        "echo",
+        "'really jailbroken';",
+        NULL
+    };
+    posix_spawn(&pid, argv2[0], NULL, NULL, argv2, environ);
+    waitpid(pid, NULL, 0);
+    
+    char *argv3[] = {
+        "/bin/launchctl",
+        "load",
+        "/Library/LaunchDaemons/0.reload.plist",
+        NULL
+    };
+    posix_spawn(&pid, argv3[0], NULL, NULL, argv3, environ);
+    waitpid(pid, NULL, 0);
+    
+//    system("rm -rf /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; touch /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chmod 000 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate; chown 0:0 /var/MobileAsset/Assets/com_apple_MobileAsset_SoftwareUpdate");
+//    system("(echo 'really jailbroken'; /bin/launchctl load /Library/LaunchDaemons/0.reload.plist)&");
     WriteAnywhere64(bsd_task+0x100, orig_cred);
     sleep(2);
     
